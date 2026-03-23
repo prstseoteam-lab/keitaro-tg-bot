@@ -6,9 +6,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiohttp import web
 
 # --- НАСТРОЙКИ (ПОДСТАВЬ СВОИ) ---
-API_TOKEN = 'ТВОЙ_ТОКЕН_ТГ'
-KEITARO_API_KEY = 'ТВОЙ_КЛЮЧ_КЕЙТАРО'
-KEITARO_URL = 'http://85.158.110.171/admin_api/v1'
+API_TOKEN = os.environ.get("API_TOKEN")
+KEITARO_API_KEY = os.environ.get("KEITARO_API_KEY")
+KEITARO_URL = 'http://1click2play.com/admin_api/v1'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
