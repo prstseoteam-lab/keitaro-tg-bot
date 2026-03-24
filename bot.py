@@ -53,7 +53,7 @@ def find_matches(eur_amount, network, tx_id):
             unpaid_cells = []
             
             # Собираем все НЕ зеленые ячейки в этом столбце
-            for row_idx, row_data in enumerate(sheet_data[2:], start=3):
+            for row_idx, row_data in enumerate(sheet_data[2:], start=):
                 cells = row_data.get('values', [])
                 if col_idx >= len(cells): continue
                 
@@ -72,7 +72,7 @@ def find_matches(eur_amount, network, tx_id):
 
             # 1. Проверка одиночных выплат
             for item in unpaid_cells:
-                if abs(item['val'] - eur_amount) / item['val'] < 0.03:
+                if abs(item['val'] - eur_amount) / item['val'] < 0.04:
                     addr = gspread.utils.rowcol_to_a1(item['row'], col_idx + 1)
                     sheet.update_notes({addr: f"✅ Транза {network}: {eur_amount}€\nДата: {today}"})
                     matches_found.append(f"🎯 {pp_names[col_idx]} ({item['month']}) — {item['val']}€")
@@ -81,7 +81,7 @@ def find_matches(eur_amount, network, tx_id):
             for i in range(len(unpaid_cells)):
                 for j in range(i + 1, len(unpaid_cells)):
                     combo_sum = unpaid_cells[i]['val'] + unpaid_cells[j]['val']
-                    if abs(combo_sum - eur_amount) / combo_sum < 0.03:
+                    if abs(combo_sum - eur_amount) / combo_sum < 0.04:
                         for k in [i, j]:
                             addr = gspread.utils.rowcol_to_a1(unpaid_cells[k]['row'], col_idx + 1)
                             sheet.update_notes({addr: f"🔗 Комбо-транза {network}: {eur_amount}€\nЧасть суммы: {unpaid_cells[k]['val']}€"})
@@ -111,7 +111,7 @@ async def process_income(network, amount, sender, tx_id):
     matches = find_matches(round(eur_sum, 2), network, tx_id)
     
     match_text = "✅ **Совпадения:**\n" + "\n".join(matches) if matches else "❓ Совпадений не найдено."
-    msg = (f"📥 **ПРИХОД {network}**\n💰 `{amount}` (~`{round(eur_sum, 2)}€`)\n👤 Из: `{sender[:10]}...`\n\n{match_text}")
+    msg = (f"📥 **ПРИХОД {network}**\n💰 `{amount}` (~`{round(eur_sum, 2)}€`)\n👤 От: `{sender}`\n\n{match_text}")
     
     requests.post(f"https://api.telegram.org/bot{API_TOKEN}/sendMessage", data={'chat_id': CHAT_ID, 'text': msg, 'parse_mode': 'Markdown'})
     seen_txs.add(tx_id)
